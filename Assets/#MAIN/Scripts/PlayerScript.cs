@@ -1,4 +1,4 @@
-using System.Collections;
+    using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +14,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private float _laneSwitchSpeed = 3;
     [SerializeField] private Transform _groundRaycastPoint;
     [SerializeField] private LayerMask _groundLayers;
+    [SerializeField] private RoadPieceSpawnerScript _roadPieceSpawner;
 
     private bool _isGrounded;
 
@@ -75,5 +76,11 @@ public class PlayerScript : MonoBehaviour
         }
         else
             _isGrounded = false;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("SpawnTrigger"))
+            _roadPieceSpawner.SpawnRandomRoadPiece();
     }
 }
