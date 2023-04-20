@@ -1,6 +1,7 @@
     using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private Transform _groundRaycastPoint;
     [SerializeField] private LayerMask _groundLayers;
     [SerializeField] private RoadPieceSpawnerScript _roadPieceSpawner;
+    [SerializeField] private GameObject _gameOverPanel;
 
     private bool _isGrounded;
 
@@ -22,6 +24,7 @@ public class PlayerScript : MonoBehaviour
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        Time.timeScale = 1;
     }
 
     // Update is called once per frame
@@ -82,5 +85,22 @@ public class PlayerScript : MonoBehaviour
     {
         if (other.gameObject.CompareTag("SpawnTrigger"))
             _roadPieceSpawner.SpawnRandomRoadPiece();
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.transform.CompareTag("Obstacle"))
+        {
+            GameOver();
+        }
+    }
+    void GameOver()
+    {
+        _gameOverPanel.SetActive(true);
+        Time.timeScale = 0;
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(0);
     }
 }
