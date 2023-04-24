@@ -17,6 +17,8 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private LayerMask _groundLayers;
     [SerializeField] private RoadPieceSpawnerScript _roadPieceSpawner;
     [SerializeField] private GameObject _gameOverPanel;
+    [SerializeField] private Animator _animator;
+    [SerializeField] private Collider[] _ragdollColliders;
 
     private bool _isGrounded;
 
@@ -25,6 +27,7 @@ public class PlayerScript : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
         Time.timeScale = 1;
+        ChangeStateOfRagdollColliders(false);
     }
 
     // Update is called once per frame
@@ -32,6 +35,7 @@ public class PlayerScript : MonoBehaviour
     {
         Inputs();
         CheckIfGrounded();
+        Animations();
         Movement();
 
     }
@@ -42,6 +46,12 @@ public class PlayerScript : MonoBehaviour
         Vector3 targetPosition = new Vector3(_currentLaneIndex * _laneWidth, transform.position.y, transform.position.z);
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * _laneSwitchSpeed);
 
+    }
+
+    void Animations()
+    {
+        float angle = Vector3.SignedAngle(Vector3.forward, new Vector3(_currentLaneIndex * _laneWidth - transform.position.x, 0, 1), transform.up);
+        _animator.SetFloat("XInput", angle / 75);
     }
 
     void Inputs()
@@ -66,10 +76,17 @@ public class PlayerScript : MonoBehaviour
 
         _currentLaneIndex += x;
     }
-
+    void ChangeStateOfRagdollColliders(bool val)
+    {
+        foreach(Collider r in _ragdollColliders)
+        {
+            r.enabled = val;
+        }
+    }
     void Jump()
     {
         _rigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        _animator.SetTrigger("Jump");
     }
     void CheckIfGrounded()
     {
@@ -96,7 +113,8 @@ public class PlayerScript : MonoBehaviour
     void GameOver()
     {
         _gameOverPanel.SetActive(true);
-        Time.timeScale = 0;
+        _animator.enabled = false;
+        ChangeStateOfRagdollColliders(true);
     }
 
     public void Restart()
